@@ -1,0 +1,37 @@
+User-agent: *
+
+# Autoriser l'accès aux pages publiques
+Allow: /
+Allow: /index.sql
+Allow: /aide.sql
+Allow: /manifest.json
+
+# 1. Dossiers privés et d'administration
+Disallow: /comptes/
+Disallow: /aires/
+Disallow: /suggestions/
+Disallow: /css/
+Disallow: /js/
+Disallow: /img/
+Disallow: /icons/
+Disallow: /preferences/
+
+# 2. Scripts d'action et traitements SQL (requêtes POST / modifications)
+Disallow: /*_delete.sql
+Disallow: /aires.sql
+Disallow: /besoin.sql
+Disallow: /besoin_*.sql
+Disallow: /envoi_alerte.sql
+Disallow: /resa.sql
+Disallow: /resa_*.sql
+Disallow: /save_subscription.sql
+Disallow: /shell.sql
+Disallow: /trajet.sql
+Disallow: /trajet_*.sql
+Disallow: /validation.sql
+Disallow: /unsubscribe.sql
+
+# 3. Fichiers de configuration et bases de données
+Disallow: /*.db
+Disallow: /*.json$
+Disallow: /sqlpage/

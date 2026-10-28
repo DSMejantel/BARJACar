@@ -1,0 +1,32 @@
+{
+  "name": "BARJACar",
+  "short_name": "Barjacar",
+  "description": "BARJACar Une application de covoiturage en vallée du Lot",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#ffffff",
+  "theme_color": "#206bc4",
+  "lang": "fr-FR",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/img/barjacar_192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/img/barjacar_192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/img/barjacar_512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
