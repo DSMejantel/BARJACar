@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="24"
+   height="24"
+   viewBox="0 0 24 24"
+   fill="none"
+   stroke="currentColor"
+   stroke-width="2"
+   stroke-linecap="round"
+   stroke-linejoin="round"
+   class="icon icon-tabler icons-tabler-outline icon-tabler-car"
+   version="1.1"
+   id="svg10"
+   sodipodi:docname="car-off.svg"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs14" />
+  <sodipodi:namedview
+     id="namedview12"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="23.291667"
+     inkscape:cx="11.012522"
+     inkscape:cy="12.021467"
+     inkscape:window-width="1324"
+     inkscape:window-height="699"
+     inkscape:window-x="42"
+     inkscape:window-y="32"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg10" />
+  <path
+     stroke="none"
+     d="M0 0h24v24H0z"
+     fill="none"
+     id="path2" />
+  <path
+     d="M5 17h-2v-6l2 -5h9l4 5h1a2 2 0 0 1 2 2v4h-2m-4 0h-6m-6 -6h15m-6 0v-5"
+     id="path8"
+     style="stroke-opacity:1;stroke:red;fill:none;" />
+  <path
+     d="m 5,17 c 0,2.666666 4,2.666666 4,0 C 9,15.732008 8.09561,15.066943 7.1468996,15.004804 6.1004131,14.936261 5,15.601326 5,17"
+     id="path4"
+     sodipodi:nodetypes="cssc"
+     style="stroke:red;fill:none" />
+  <path
+     d="m 15,17 c 0,2.666666 4,2.666666 4,0 0,-1.581543 -1.40697,-2.225106 -2.552022,-1.93069 C 15.662339,15.271314 15,15.914878 15,17"
+     id="path6"
+     sodipodi:nodetypes="cssc"
+     style="stroke:red;fill:none" />
+</svg>
