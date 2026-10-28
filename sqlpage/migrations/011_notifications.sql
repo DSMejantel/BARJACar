@@ -1,0 +1,3 @@
+ALTER TABLE notifications ADD COLUMN sent_at DATETIME DEFAULT NULL;
+
+

@@ -1,0 +1,48 @@
+--Menu
+SET group_id = coalesce((SELECT user_info.groupe FROM login_session join user_info on user_info.username=login_session.username WHERE id = sqlpage.cookie('session')),0);    
+
+SELECT 'dynamic' AS component, sqlpage.run_sql('shell.sql') AS properties;
+
+-- Étapes
+select 
+    'steps'  as component,
+    TRUE     as counter,
+    'cyan' as color;
+select 
+    'Formulaire' as title,
+    'forms'             as icon,
+    'Données personnelles' as description,
+    TRUE                     as active;
+select 
+    'Vérification'   as title,
+    'eye-check'                 as icon,
+    'Confirmer en saisissant le code reçu' as description;
+select 
+    'Création' as title,
+    'Saisie du mot de passe' as description,
+    'lock'            as icon;
+select 
+    'Validation' as title,
+    'check'              as icon;
+
+    
+--
+SELECT 'form' AS component,
+    'Création de mon compte utilisateur' AS title,
+'create_validation.sql' AS action,
+    'Créer' AS validate,
+    'green'           as validate_color,
+    'Recommencer'           as reset;
+
+SET code=(SELECT (abs(random()) % 900000) + 100000)
+
+-- Formulaire
+SELECT 'username' AS name, 'Identifiant' as label, 4 as width, 'Votre pseudo sera visible par les autres utilisateurs et vous servira pour vous connecter.' as description, 'Votre pseudo/identifiant' as placeholder, TRUE as required;
+SELECT 'nom' AS name, 'Nom' as label, 4 as width, TRUE as required;
+SELECT 'prenom' AS name, 'Prénom' as label, 4 as width, TRUE as required;
+    SELECT 'Téléphone' AS label, 'C''est plus pratique mais pas obligatoire' as placeholder, 'tel' AS name, 6 as width;
+    SELECT 'Courriel' AS label, 'courriel' AS name, 'Obligatoire pour recevoir les notifications' as placeholder, 6 as width, TRUE as required;
+    select 'hidden' as type, 'code' as name, $code as value;
+    select 'switch' as type,  'J''accepte les conditions d''utilisation décrite ci-dessous' as label, 'Vos coordonnées seront visibles uniquement par les utilisateurs connectés qui partageront vos trajets (et vous verrez les leurs). Vous avez un droit d''accès et de rectification de vos données qui sont hébergées sur un serveur situé en France. Les données nominatives liées aux trajets ou aux réservations de covoiturage sont supprimées au bout de 30 jours.'as description, 'acceptation' as name, TRUE as required, FALSE as checked;
+
+
