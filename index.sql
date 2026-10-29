@@ -289,10 +289,162 @@ select
     '#help1'      as link,
     'teal'                    as color;
 
+---TEST
+-- DÉCLARATION DU COMPOSANT CALENDRIER AVEC NAVIGATION ET $recherche
+SELECT 
+    'calendrier' AS component,
+    -- Titre du mois en français
+    CASE COALESCE(NULLIF($m, ''), strftime('%m', 'now'))
+        WHEN '01' THEN 'Janvier' WHEN '1' THEN 'Janvier'
+        WHEN '02' THEN 'Février' WHEN '2' THEN 'Février'
+        WHEN '03' THEN 'Mars' WHEN '3' THEN 'Mars'
+        WHEN '04' THEN 'Avril' WHEN '4' THEN 'Avril'
+        WHEN '05' THEN 'Mai' WHEN '5' THEN 'Mai'
+        WHEN '06' THEN 'Juin' WHEN '6' THEN 'Juin'
+        WHEN '07' THEN 'Juillet' WHEN '7' THEN 'Juillet'
+        WHEN '08' THEN 'Août' WHEN '8' THEN 'Août'
+        WHEN '09' THEN 'Septembre' WHEN '9' THEN 'Septembre'
+        WHEN '10' THEN 'Octobre' WHEN '11' THEN 'Novembre' WHEN '12' THEN 'Décembre'
+    END || ' ' || COALESCE(NULLIF($y, ''), strftime('%Y', 'now')) AS title,
+    
+    -- Transmission de la recherche et du placeholder (identique au composant table)
+    COALESCE($recherche, '') AS initial_search_value,
+    'Filtrer par destination' AS search_placeholder,
+    COALESCE($tab, 2) AS tab_val,
+    COALESCE($group_id, 0) AS group_val,
+    COALESCE(NULLIF($m, ''), strftime('%m', 'now')) AS m_val,
+    COALESCE(NULLIF($y, ''), strftime('%Y', 'now')) AS y_val,
+
+    -- Liens de navigation conservant la variable $recherche, le mois et l'année
+    printf('?tab=%s&group_id=%s&recherche=%s&m=%s&y=%s', 
+        COALESCE($tab,2), COALESCE($group_id,0), COALESCE($recherche,''),
+        strftime('%m', date(printf('%04d-%02d-01', COALESCE(NULLIF($y, ''), strftime('%Y', 'now')), COALESCE(NULLIF($m, ''), strftime('%m', 'now'))), '-1 month')),
+        strftime('%Y', date(printf('%04d-%02d-01', COALESCE(NULLIF($y, ''), strftime('%Y', 'now')), COALESCE(NULLIF($m, ''), strftime('%m', 'now'))), '-1 month'))
+    ) AS prev_url,
+    
+    printf('?tab=%s&group_id=%s&recherche=%s&m=%s&y=%s', 
+        COALESCE($tab,2), COALESCE($group_id,0), COALESCE($recherche,''),
+        strftime('%m', date(printf('%04d-%02d-01', COALESCE(NULLIF($y, ''), strftime('%Y', 'now')), COALESCE(NULLIF($m, ''), strftime('%m', 'now'))), '+1 month')),
+        strftime('%Y', date(printf('%04d-%02d-01', COALESCE(NULLIF($y, ''), strftime('%Y', 'now')), COALESCE(NULLIF($m, ''), strftime('%m', 'now'))), '+1 month'))
+    ) AS next_url
+WHERE $tab=2 AND $group_id>0;
 
 
+-- GÉNÉRATION DE LA GRILLE AVEC FILTRE SUR $recherche
+WITH RECURSIVE
+params AS (
+    SELECT 
+        COALESCE(NULLIF($y, ''), strftime('%Y', 'now')) AS annee,
+        COALESCE(NULLIF($m, ''), strftime('%m', 'now')) AS mois
+),
+dates_calc AS (
+    SELECT 
+        printf('%04d-%02d-01', annee, mois) AS premier_jour,
+        date(printf('%04d-%02d-01', annee, mois), '+1 month', '-1 day') AS dernier_jour
+    FROM params
+),
+jours_mois(jour_date) AS (
+    SELECT premier_jour FROM dates_calc
+    UNION ALL
+    SELECT date(jour_date, '+1 day') FROM jours_mois, dates_calc WHERE jour_date < dernier_jour
+),
+decalage(nb_cases_vides) AS (
+    SELECT (CAST(strftime('%w', premier_jour) AS INT) + 6) % 7 FROM dates_calc
+),
+cases_vides(n) AS (
+    SELECT 1 FROM decalage WHERE nb_cases_vides > 0
+    UNION ALL
+    SELECT n + 1 FROM cases_vides, decalage WHERE n < decalage.nb_cases_vides
+),
+grille_complete AS (
+    SELECT 
+        'semaine' AS type,
+        (SELECT CAST(strftime('%W', premier_jour) AS INT) FROM dates_calc) AS semaine_num,
+        NULL AS jour_num,
+        NULL AS jour_texte_mobile,
+        NULL AS liste_trajets,
+        0 AS is_today,
+        (SELECT CAST(strftime('%W', premier_jour) AS INT) FROM dates_calc) AS ligne_ord,
+        0 AS col_ord
 
+    UNION ALL
 
+    SELECT 
+        'vide' AS type,
+        NULL AS semaine_num,
+        NULL AS jour_num,
+        NULL AS jour_texte_mobile,
+        NULL AS liste_trajets,
+        0 AS is_today,
+        (SELECT CAST(strftime('%W', premier_jour) AS INT) FROM dates_calc) AS ligne_ord,
+        n AS col_ord
+    FROM cases_vides
+
+    UNION ALL
+
+    SELECT DISTINCT
+        'semaine' AS type,
+        CAST(strftime('%W', j.jour_date) AS INT) AS semaine_num,
+        NULL AS jour_num,
+        NULL AS jour_texte_mobile,
+        NULL AS liste_trajets,
+        0 AS is_today,
+        CAST(strftime('%W', j.jour_date) AS INT) AS ligne_ord,
+        0 AS col_ord
+    FROM jours_mois j
+    JOIN dates_calc d ON j.jour_date > d.premier_jour
+    WHERE (CAST(strftime('%w', j.jour_date) AS INT) + 6) % 7 = 0
+
+    UNION ALL
+
+    SELECT 
+        'jour' AS type,
+        NULL AS semaine_num,
+        strftime('%d', j.jour_date) AS jour_num,
+        (
+            CASE strftime('%w', j.jour_date)
+                WHEN '1' THEN 'Lundi' WHEN '2' THEN 'Mardi' WHEN '3' THEN 'Mercredi'
+                WHEN '4' THEN 'Jeudi' WHEN '5' THEN 'Vendredi' WHEN '6' THEN 'Samedi' WHEN '0' THEN 'Dimanche'
+            END || ' ' || strftime('%d', j.jour_date) || ' ' || 
+            CASE SUBSTR(j.jour_date, 6, 2)
+                WHEN '01' THEN 'Janvier' WHEN '02' THEN 'Février' WHEN '03' THEN 'Mars' 
+                WHEN '04' THEN 'Avril' WHEN '05' THEN 'Mai' WHEN '06' THEN 'Juin' 
+                WHEN '07' THEN 'Juillet' WHEN '08' THEN 'Août' WHEN '09' THEN 'Septembre' 
+                WHEN '10' THEN 'Octobre' WHEN '11' THEN 'Novembre' WHEN '12' THEN 'Décembre'
+            END
+        ) AS jour_texte_mobile,
+        GROUP_CONCAT(
+            CASE WHEN t.id IS NOT NULL THEN
+                printf(
+                    '<a href="resa.sql?id=%d" class="event-compact %s"><div class="event-dest">➔ %s</div><div class="event-dep">depuis %s</div><div class="event-meta">🕒 %s (%s)</div></a>',
+                    t.id,
+                    CASE WHEN (t.places - t.reserves) <= 0 THEN 'complet' ELSE '' END,
+                    TRIM(t.arrivee),
+                    TRIM(t.depart),
+                    strftime('%Hh%M', t.heure),
+                    CASE WHEN (t.places - t.reserves) > 0 THEN printf('%d pl.', (t.places - t.reserves)) ELSE 'Complet' END
+                )
+            END,
+            ''
+        ) AS liste_trajets,
+        CASE WHEN j.jour_date = date('now') THEN 1 ELSE 0 END AS is_today,
+        CAST(strftime('%W', j.jour_date) AS INT) AS ligne_ord,
+        (CAST(strftime('%w', j.jour_date) AS INT) + 6) % 7 + 1 AS col_ord
+    FROM jours_mois j
+    LEFT JOIN trajets t 
+           ON date(t.jour) = j.jour_date 
+          AND date(t.jour) >= date('now')
+          AND $tab = 2 
+          AND $group_id > 0
+          AND ($recherche IS NULL OR $recherche = '' OR lower(t.arrivee) LIKE '%' || lower($recherche) || '%' OR lower(t.depart) LIKE '%' || lower($recherche) || '%')
+    GROUP BY j.jour_date
+)
+SELECT type, semaine_num, jour_num, jour_texte_mobile, liste_trajets, is_today, ligne_ord, col_ord
+FROM grille_complete
+ORDER BY ligne_ord ASC, col_ord ASC;
+---TEST
+
+/*
 SELECT 
     'table'          as component,
     TRUE             as sort,
@@ -328,7 +480,7 @@ END AS Résa,
 
     FROM trajets WHERE $tab=2 and datetime(date(jour))>datetime(date('now', '-1 day')) and $group_id>0 ORDER BY jour;
 
-    
+*/    
 
 --- Les besoins
 

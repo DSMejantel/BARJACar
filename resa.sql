@@ -9,7 +9,7 @@ SELECT 'dynamic' AS component, sqlpage.run_sql('shell.sql') AS properties;
 
 select 
     'alert'   as component,
-    'Réservation' as title,
+    'Réservation pour le '||(SELECT journee FROM semainier WHERE position= strftime('%w',jour))||CHAR(10)||CHAR(10)||strftime('%d',jour)||' '||(SELECT mois FROM calendrier WHERE position= strftime('%m',jour))||CHAR(10)||CHAR(10)||strftime('%Hh%M',heure) as title,
     'Conducteur : '||user_id||CHAR(10)||CHAR(10)||'Informations : '||coalesce(infos,'pas de remarques') as description_md,
     'car'   as icon,
     'teal'   as color
