@@ -1,0 +1,299 @@
+{{! Template Handlebars : Calendrier grille mensuelle (Mois à gauche, Recherche à droite) }}
+<style>
+  .calendar-wrapper {
+    max-width: 100%;
+    margin: 15px auto;
+    background: #ffffff;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+    font-family: inherit;
+  }
+
+  /* --- BARRE SUPÉRIEURE : MOIS À GAUCHE, RECHERCHE À DROITE --- */
+  .calendar-top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 15px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #e2e8f0;
+  }
+  
+  .calendar-navigation {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .calendar-title-month {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+    text-transform: capitalize;
+  }
+  .nav-btn {
+    background: #f1f5f9;
+    color: #0f766e;
+    border: 1px solid #cbd5e1;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.15s;
+  }
+  .nav-btn:hover {
+    background: #e2e8f0;
+    color: #0f766e;
+  }
+
+  .calendar-search-form {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .calendar-search-input {
+    padding: 6px 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .calendar-search-input:focus {
+    border-color: #0d9488;
+  }
+  .search-btn {
+    background: #0d9488;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .search-btn:hover {
+    background: #0f766e;
+  }
+
+  /* --- GRILLE --- */
+  .calendar-weekdays {
+    display: grid;
+    grid-template-columns: 45px repeat(7, 1fr);
+    gap: 4px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 0.8rem;
+    color: #475569;
+    margin-bottom: 6px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid #e2e8f0;
+  }
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: 45px repeat(7, 1fr);
+    gap: 4px;
+  }
+  .calendar-week-num {
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.75rem;
+    color: #0f766e;
+    min-height: 90px;
+  }
+  .calendar-day {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    min-height: 90px;
+    padding: 4px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    overflow: hidden;
+  }
+  .calendar-day.empty {
+    background: #f8fafc;
+    border-color: #f1f5f9;
+  }
+  .day-number {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #475569;
+    text-align: right;
+    margin-bottom: 2px;
+  }
+  .day-number.today {
+    color: #0d9488;
+    background: #ccfbf1;
+    padding: 0 4px;
+    border-radius: 6px;
+  }
+  .day-mobile-label {
+    display: none;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #0f766e;
+    margin-bottom: 6px;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 4px;
+  }
+  .events-container {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .event-compact {
+    display: block;
+    background: #0d9488;
+    color: #ffffff !important;
+    padding: 3px 5px;
+    border-radius: 3px;
+    font-size: 0.7rem;
+    text-decoration: none !important;
+    line-height: 1.15;
+    word-break: break-word;
+    transition: background-color 0.15s;
+  }
+  .event-compact:hover {
+    background: #0f766e;
+  }
+  .event-compact.complet {
+    background: #e11d48;
+  }
+  .event-dest {
+    font-weight: 700;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .event-dep {
+    font-size: 0.62rem;
+    opacity: 0.85;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .event-meta {
+    font-size: 0.62rem;
+    opacity: 0.95;
+    margin-top: 1px;
+  }
+
+  /* --- ADAPTATION MOBILE --- */
+  @media (max-width: 768px) {
+    .calendar-top-bar {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .calendar-navigation {
+      justify-content: space-between;
+      width: 100%;
+    }
+    .calendar-search-form {
+      width: 100%;
+    }
+    .calendar-search-input {
+      flex-grow: 1;
+    }
+    .calendar-weekdays {
+      display: none;
+    }
+    .calendar-grid {
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+    .calendar-week-num {
+      display: none;
+    }
+    .calendar-day.empty {
+      display: none;
+    }
+    .calendar-day {
+      min-height: auto;
+      padding: 10px;
+      background: #f8fafc;
+      border-left: 4px solid #0d9488;
+    }
+    .day-number {
+      display: none;
+    }
+    .day-mobile-label {
+      display: block;
+    }
+    .event-compact {
+      padding: 8px;
+      font-size: 0.85rem;
+      margin-bottom: 4px;
+      border-radius: 6px;
+    }
+    .event-dest {
+      font-size: 0.9rem;
+    }
+    .event-dep, .event-meta {
+      font-size: 0.75rem;
+    }
+  }
+</style>
+
+<div class="calendar-wrapper">
+  <!-- Barre supérieure : Navigation mois à gauche, Recherche à droite -->
+  <div class="calendar-top-bar">
+    <div class="calendar-navigation">
+      <a href="{{prev_url}}" class="nav-btn">◀ Précédent</a>
+      <h3 class="calendar-title-month">{{title}}</h3>
+      <a href="{{next_url}}" class="nav-btn">Suivant ▶</a>
+    </div>
+
+    <form method="GET" class="calendar-search-form">
+      <input type="hidden" name="tab" value="{{tab_val}}">
+      <input type="hidden" name="group_id" value="{{group_val}}">
+      <input type="hidden" name="m" value="{{m_val}}">
+      <input type="hidden" name="y" value="{{y_val}}">
+      
+      <input type="text" name="recherche" value="{{initial_search_value}}" placeholder="{{search_placeholder}}" class="calendar-search-input">
+      <button type="submit" class="search-btn">Filtrer</button>
+    </form>
+  </div>
+
+  <div class="calendar-weekdays">
+    <div>Sem</div>
+    <div>Lun</div>
+    <div>Mar</div>
+    <div>Mer</div>
+    <div>Jeu</div>
+    <div>Ven</div>
+    <div>Sam</div>
+    <div>Dim</div>
+  </div>
+
+  <div class="calendar-grid">
+    {{#each_row}}
+      {{#if (eq type 'semaine')}}
+        <div class="calendar-week-num">S{{semaine_num}}</div>
+      {{else if (eq type 'vide')}}
+        <div class="calendar-day empty"></div>
+      {{else}}
+        <div class="calendar-day">
+          <div class="day-mobile-label">{{jour_texte_mobile}}</div>
+          <div class="day-number {{#if is_today}}today{{/if}}">{{jour_num}}</div>
+          <div class="events-container">
+            {{{liste_trajets}}}
+          </div>
+        </div>
+      {{/if}}
+    {{/each_row}}
+  </div>
+</div>
