@@ -146,9 +146,9 @@ SET unread_notifs = coalesce((
 SET tab=coalesce($tab,'1');
 select 'tab' as component, TRUE as center;
 select  'Mes trajets' as title, 'car' as icon, 'index.sql?tab=3' as link, CASE WHEN $tab='3' THEN 'teal' ELSE 'secondary' END as color where $group_id>0;
-select  'Tous les trajets' as title, 'list' as icon, 'index.sql?tab=2' as link, CASE WHEN $tab='2' THEN 'teal' ELSE 'secondary' END as color;
-select  'Carte Trajets'  as title, 'map-search' as icon, 'index.sql?tab=1' as link, CASE WHEN $tab='1' THEN 'teal' ELSE 'secondary' END as color;
-select  'Les souhaits' as title, 'world-question' as icon, 'index.sql?tab=4' as link, CASE WHEN $tab='4' THEN 'teal' ELSE 'secondary' END as color where $group_id>0;
+select  'Calendrier' as title, 'calendar' as icon, 'index.sql?tab=2' as link, CASE WHEN $tab='2' THEN 'teal' ELSE 'secondary' END as color;
+select  'Carte'  as title, 'map-search' as icon, 'index.sql?tab=1' as link, CASE WHEN $tab='1' THEN 'teal' ELSE 'secondary' END as color;
+select  'Demandes' as title, 'world-question' as icon, 'index.sql?tab=4' as link, CASE WHEN $tab='4' THEN 'teal' ELSE 'secondary' END as color where $group_id>0;
 select  'Points de covoiturage' as title, 'bus-stop' as icon, 'index.sql?tab=5' as link, CASE WHEN $tab='5' THEN 'teal' ELSE 'secondary' END as color;
 -- Nouvel onglet Notifications
 select  
