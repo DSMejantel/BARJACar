@@ -1,4 +1,4 @@
-{{! Template Handlebars : Calendrier grille mensuelle complet avec bouton d'effacement du filtre }}
+{{! Template Handlebars : Calendrier grille mensuelle complet avec ordre : input / effacer / filtrer }}
 <style>
   .calendar-wrapper {
     max-width: 100%;
@@ -9,6 +9,7 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     border: 1px solid #e2e8f0;
     font-family: inherit;
+    box-sizing: border-box;
   }
 
   /* --- BARRE SUPÉRIEURE : MOIS À GAUCHE, RECHERCHE À DROITE --- */
@@ -50,10 +51,13 @@
     color: #0f766e;
   }
 
+  /* Formulaire de recherche encadré pour éviter tout débordement */
   .calendar-search-form {
     display: flex;
     gap: 6px;
     align-items: center;
+    max-width: 100%;
+    box-sizing: border-box;
   }
   .calendar-search-input {
     padding: 6px 10px;
@@ -62,6 +66,8 @@
     font-size: 0.85rem;
     outline: none;
     transition: border-color 0.15s;
+    min-width: 0; /* Permet à l'input de rétrécir si besoin sur petits écrans */
+    flex-grow: 1;
   }
   .calendar-search-input:focus {
     border-color: #0d9488;
@@ -76,24 +82,37 @@
     font-weight: 600;
     cursor: pointer;
     transition: background 0.15s;
+    white-space: nowrap;
   }
   .search-btn:hover {
     background: #0f766e;
   }
+  
+  /* Bouton d'effacement avec icône SVG au milieu */
   .clear-search-btn {
     background: #e2e8f0;
     color: #475569;
-    padding: 6px 10px;
+    padding: 6px 8px;
     border-radius: 6px;
-    font-size: 0.85rem;
-    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     text-decoration: none;
     transition: background 0.15s, color 0.15s;
-    white-space: nowrap;
+    flex-shrink: 0;
   }
   .clear-search-btn:hover {
     background: #cbd5e1;
     color: #0f172a;
+  }
+  .clear-search-btn svg {
+    width: 14px;
+    height: 14px;
+    stroke: currentColor;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
   }
 
   /* --- GRILLE --- */
@@ -234,9 +253,6 @@
     .calendar-search-form {
       width: 100%;
     }
-    .calendar-search-input {
-      flex-grow: 1;
-    }
     .calendar-weekdays {
       display: none;
     }
@@ -289,6 +305,7 @@
       <a href="{{next_url}}" class="nav-btn">Suivant ▶</a>
     </div>
 
+    <!-- Formulaire avec l'ordre : input de recherche / bouton effacer (si actif) / bouton Filtrer -->
     <form method="GET" class="calendar-search-form">
       <input type="hidden" name="tab" value="{{tab_val}}">
       <input type="hidden" name="group_id" value="{{group_val}}">
@@ -296,11 +313,14 @@
       <input type="hidden" name="y" value="{{y_val}}">
       
       <input type="text" name="recherche" value="{{initial_search_value}}" placeholder="{{search_placeholder}}" class="calendar-search-input">
-      <button type="submit" class="search-btn">Filtrer</button>
 
       {{#if initial_search_value}}
-        <a href="?tab={{tab_val}}&group_id={{group_val}}&m={{m_val}}&y={{y_val}}&recherche=" class="clear-search-btn" title="Effacer le filtre">✕ Effacer</a>
+        <a href="?tab={{tab_val}}&group_id={{group_val}}&m={{m_val}}&y={{y_val}}&recherche=" class="clear-search-btn" title="Effacer le filtre">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </a>
       {{/if}}
+
+      <button type="submit" class="search-btn">Filtrer</button>
     </form>
   </div>
 
