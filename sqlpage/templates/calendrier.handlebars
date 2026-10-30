@@ -1,4 +1,4 @@
-{{! Template Handlebars : Calendrier grille mensuelle (Mois à gauche, Recherche à droite) }}
+{{! Template Handlebars : Calendrier grille mensuelle complet }}
 <style>
   .calendar-wrapper {
     max-width: 100%;
@@ -22,7 +22,6 @@
     padding-bottom: 12px;
     border-bottom: 2px solid #e2e8f0;
   }
-  
   .calendar-navigation {
     display: flex;
     align-items: center;
@@ -134,11 +133,13 @@
     text-align: right;
     margin-bottom: 2px;
   }
+  /* Style ORANGE pour is_today */
   .day-number.today {
-    color: #0d9488;
-    background: #ccfbf1;
+    color: #c2410c;
+    background: #ffedd5;
     padding: 0 4px;
     border-radius: 6px;
+    border: 1px solid #fdba74;
   }
   .day-mobile-label {
     display: none;
@@ -158,11 +159,11 @@
     display: block;
     background: #0d9488;
     color: #ffffff !important;
-    padding: 3px 5px;
-    border-radius: 3px;
+    padding: 4px 5px;
+    border-radius: 4px;
     font-size: 0.7rem;
     text-decoration: none !important;
-    line-height: 1.15;
+    line-height: 1.2;
     word-break: break-word;
     transition: background-color 0.15s;
   }
@@ -180,16 +181,29 @@
     text-overflow: ellipsis;
   }
   .event-dep {
-    font-size: 0.62rem;
-    opacity: 0.85;
+    font-size: 0.65rem;
+    opacity: 0.9;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    margin-top: 1px;
   }
   .event-meta {
-    font-size: 0.62rem;
+    font-size: 0.65rem;
     opacity: 0.95;
-    margin-top: 1px;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .event-compact img {
+    height: 12px;
+    width: 12px;
+    vertical-align: middle;
+    filter: brightness(0) invert(1);
   }
 
   /* --- ADAPTATION MOBILE --- */
@@ -245,11 +259,14 @@
     .event-dep, .event-meta {
       font-size: 0.75rem;
     }
+    .event-compact img {
+      height: 14px;
+      width: 14px;
+    }
   }
 </style>
 
 <div class="calendar-wrapper">
-  <!-- Barre supérieure : Navigation mois à gauche, Recherche à droite -->
   <div class="calendar-top-bar">
     <div class="calendar-navigation">
       <a href="{{prev_url}}" class="nav-btn">◀ Précédent</a>
