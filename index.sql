@@ -38,8 +38,6 @@ WHERE user_id IS NOT NULL
 -- Effacement des demandes dont la date a expirée
 DELETE FROM besoins WHERE jour < datetime('now', '-1 days');
 
-
-
 -- Message : retour réservation
 SELECT 'alert' as component,
     'Merci !' as title,
@@ -162,7 +160,7 @@ select
     'index.sql?tab=6' as link, 
     CASE WHEN $tab='6' THEN 'orange' ELSE 'secondary' END as color 
 where $group_id > 0;
-
+select  '' as title, 'leaf' as icon, 'index.sql?tab=7' as link, CASE WHEN $tab='7' THEN 'teal' ELSE 'secondary' END as color;
 --------------------------------
 --- Carte pour non-connectés ---
 --------------------------------
@@ -714,3 +712,52 @@ WHERE user_id = (
     WHERE id = sqlpage.cookie('session')
 ) AND $tab=6 AND $group_id>0
 ORDER BY created_at DESC;
+
+----
+-- Info Valorisation environnementale
+-- Mise à jour des trajets pour calcul CO2 épargné
+UPDATE trajets 
+SET 
+    distance_km = ROUND(
+        (6371 * ACOS(
+            COS(dep_Lat * 0.0174532925) * COS(arr_Lat * 0.0174532925) * 
+            COS((arr_Lon * 0.0174532925) - (dep_Lon * 0.0174532925)) + 
+            SIN(dep_Lat * 0.0174532925) * SIN(arr_Lat * 0.0174532925)
+        ) * 1.25), 
+    1),
+    co2_kg = ROUND(
+        (
+            (6371 * ACOS(
+                COS(dep_Lat * 0.0174532925) * COS(arr_Lat * 0.0174532925) * 
+                COS((arr_Lon * 0.0174532925) - (dep_Lon * 0.0174532925)) + 
+                SIN(dep_Lat * 0.0174532925) * SIN(arr_Lat * 0.0174532925)
+            ) * 1.25) 
+            * (SELECT COALESCE(SUM(r.places), 0) FROM resa r WHERE r.trajet_id = trajets.id AND r.validation = 1)
+            * 0.104
+        ), 
+    1)
+WHERE distance_km IS NULL
+  AND date(jour) <= date('now')
+  AND EXISTS (
+      SELECT 1 
+      FROM resa r 
+      WHERE r.trajet_id = trajets.id 
+        AND r.validation = 1 and $tab=7
+  );
+  
+select 
+    'columns' as component
+    where $tab=7;
+select 
+    'Impact Environnemental'  as title,
+    ROUND(SUM(co2_kg), 1)||' kg'   as value,
+    'de CO2 épargné'                      as small_text,
+    'leaf-2'         as icon,
+    'teal' AS icon_color,
+     'orange' AS value_color,
+    'Basé sur les covoiturages réalisés' as description,
+    json_object('icon','map-route','color','teal','description',ROUND(SUM(distance_km), 1)||' km de trajets partagés') as item,
+    json_object('icon','users','color','teal','description','avec '||SUM(reserves)||' passagers') as item,
+    4 as size
+    FROM trajets WHERE co2_kg IS NOT NULL and $tab=7;
+
