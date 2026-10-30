@@ -148,9 +148,8 @@ select 'tab' as component, TRUE as center;
 select  'Mes trajets' as title, 'car' as icon, 'index.sql?tab=3' as link, CASE WHEN $tab='3' THEN 'teal' ELSE 'secondary' END as color where $group_id>0;
 select  'Calendrier' as title, 'calendar' as icon, 'index.sql?tab=2' as link, CASE WHEN $tab='2' THEN 'teal' ELSE 'secondary' END as color;
 select  'Carte'  as title, 'map-search' as icon, 'index.sql?tab=1' as link, CASE WHEN $tab='1' THEN 'teal' ELSE 'secondary' END as color;
-select  'Demandes' as title, 'world-question' as icon, 'index.sql?tab=4' as link, CASE WHEN $tab='4' THEN 'teal' ELSE 'secondary' END as color where $group_id>0;
-select  'Zones covoit''' as title, 'bus-stop' as icon, 'index.sql?tab=5' as link, CASE WHEN $tab='5' THEN 'teal' ELSE 'secondary' END as color;
--- Nouvel onglet Notifications
+select  'Besoins' as title, 'world-question' as icon, 'index.sql?tab=4' as link, CASE WHEN $tab='4' THEN 'teal' ELSE 'secondary' END as color where $group_id>0;
+select  'Aires' as title, 'bus-stop' as icon, 'index.sql?tab=5' as link, CASE WHEN $tab='5' THEN 'teal' ELSE 'secondary' END as color;
 select  
     CASE 
         WHEN $unread_notifs > 0 THEN 'Notifs (' || $unread_notifs || ')' 
@@ -423,7 +422,7 @@ grille_complete AS (
                     ELSE '<img src="/icons/car-off.svg" alt="Complet"/>'
                 END || ' <img src="/icons/hand-click.svg" alt="clic" /></span></div></a>'
             END,
-            ''
+            '' ORDER BY t.heure ASC
         ) AS liste_trajets,
         CASE WHEN j.jour_date = date('now') THEN 1 ELSE 0 END AS is_today,
         CAST(strftime('%W', j.jour_date) AS INT) AS ligne_ord,
