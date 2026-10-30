@@ -1,4 +1,4 @@
-{{! Template Handlebars : Calendrier grille mensuelle complet }}
+{{! Template Handlebars : Calendrier grille mensuelle complet avec bouton d'effacement du filtre }}
 <style>
   .calendar-wrapper {
     max-width: 100%;
@@ -79,6 +79,21 @@
   }
   .search-btn:hover {
     background: #0f766e;
+  }
+  .clear-search-btn {
+    background: #e2e8f0;
+    color: #475569;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.15s, color 0.15s;
+    white-space: nowrap;
+  }
+  .clear-search-btn:hover {
+    background: #cbd5e1;
+    color: #0f172a;
   }
 
   /* --- GRILLE --- */
@@ -282,6 +297,10 @@
       
       <input type="text" name="recherche" value="{{initial_search_value}}" placeholder="{{search_placeholder}}" class="calendar-search-input">
       <button type="submit" class="search-btn">Filtrer</button>
+
+      {{#if initial_search_value}}
+        <a href="?tab={{tab_val}}&group_id={{group_val}}&m={{m_val}}&y={{y_val}}&recherche=" class="clear-search-btn" title="Effacer le filtre">✕ Effacer</a>
+      {{/if}}
     </form>
   </div>
 
