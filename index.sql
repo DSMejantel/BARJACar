@@ -149,7 +149,7 @@ select  'Mes trajets' as title, 'car' as icon, 'index.sql?tab=3' as link, CASE W
 select  'Calendrier' as title, 'calendar' as icon, 'index.sql?tab=2' as link, CASE WHEN $tab='2' THEN 'teal' ELSE 'secondary' END as color;
 select  'Carte'  as title, 'map-search' as icon, 'index.sql?tab=1' as link, CASE WHEN $tab='1' THEN 'teal' ELSE 'secondary' END as color;
 select  'Demandes' as title, 'world-question' as icon, 'index.sql?tab=4' as link, CASE WHEN $tab='4' THEN 'teal' ELSE 'secondary' END as color where $group_id>0;
-select  'Points de covoiturage' as title, 'bus-stop' as icon, 'index.sql?tab=5' as link, CASE WHEN $tab='5' THEN 'teal' ELSE 'secondary' END as color;
+select  'Zones covoit''' as title, 'bus-stop' as icon, 'index.sql?tab=5' as link, CASE WHEN $tab='5' THEN 'teal' ELSE 'secondary' END as color;
 -- Nouvel onglet Notifications
 select  
     CASE 
@@ -290,10 +290,9 @@ select
     'teal'                    as color;
 
 ---TEST
--- DÉCLARATION DU COMPOSANT CALENDRIER AVEC NAVIGATION ET $recherche
+-- DÉCLARATION DU COMPOSANT CALENDRIER
 SELECT 
     'calendrier' AS component,
-    -- Titre du mois en français
     CASE COALESCE(NULLIF($m, ''), strftime('%m', 'now'))
         WHEN '01' THEN 'Janvier' WHEN '1' THEN 'Janvier'
         WHEN '02' THEN 'Février' WHEN '2' THEN 'Février'
@@ -307,7 +306,6 @@ SELECT
         WHEN '10' THEN 'Octobre' WHEN '11' THEN 'Novembre' WHEN '12' THEN 'Décembre'
     END || ' ' || COALESCE(NULLIF($y, ''), strftime('%Y', 'now')) AS title,
     
-    -- Transmission de la recherche et du placeholder (identique au composant table)
     COALESCE($recherche, '') AS initial_search_value,
     'Filtrer par destination' AS search_placeholder,
     COALESCE($tab, 2) AS tab_val,
@@ -315,7 +313,6 @@ SELECT
     COALESCE(NULLIF($m, ''), strftime('%m', 'now')) AS m_val,
     COALESCE(NULLIF($y, ''), strftime('%Y', 'now')) AS y_val,
 
-    -- Liens de navigation conservant la variable $recherche, le mois et l'année
     printf('?tab=%s&group_id=%s&recherche=%s&m=%s&y=%s', 
         COALESCE($tab,2), COALESCE($group_id,0), COALESCE($recherche,''),
         strftime('%m', date(printf('%04d-%02d-01', COALESCE(NULLIF($y, ''), strftime('%Y', 'now')), COALESCE(NULLIF($m, ''), strftime('%m', 'now'))), '-1 month')),
@@ -330,7 +327,7 @@ SELECT
 WHERE $tab=2 AND $group_id>0;
 
 
--- GÉNÉRATION DE LA GRILLE AVEC FILTRE SUR $recherche
+-- GÉNÉRATION DE LA GRILLE
 WITH RECURSIVE
 params AS (
     SELECT 
@@ -415,15 +412,16 @@ grille_complete AS (
         ) AS jour_texte_mobile,
         GROUP_CONCAT(
             CASE WHEN t.id IS NOT NULL THEN
-                printf(
-                    '<a href="resa.sql?id=%d" class="event-compact %s"><div class="event-dest">➔ %s</div><div class="event-dep">depuis %s</div><div class="event-meta">🕒 %s (%s)</div></a>',
-                    t.id,
-                    CASE WHEN (t.places - t.reserves) <= 0 THEN 'complet' ELSE '' END,
-                    TRIM(t.arrivee),
-                    TRIM(t.depart),
-                    strftime('%Hh%M', t.heure),
-                    CASE WHEN (t.places - t.reserves) > 0 THEN printf('%d pl.', (t.places - t.reserves)) ELSE 'Complet' END
-                )
+                '<a href="resa.sql?id=' || t.id || '" class="event-compact ' || CASE WHEN (t.places - t.reserves) <= 0 THEN 'complet' ELSE '' END || '">' ||
+                '<div class="event-dest">➔ ' || TRIM(t.arrivee) || '</div>' ||
+                '<div class="event-dep"><img src="/icons/logout.svg" alt="départ" /> ' || TRIM(t.depart) || '</div>' ||
+                '<div class="event-meta"><span>arrivée ' || strftime('%Hh%M', t.heure) || '</span><span>' ||
+                CASE 
+                    WHEN (t.places - t.reserves) > 2 THEN '<img src="/icons/users-group.svg" alt="3+"/>'
+                    WHEN (t.places - t.reserves) = 2 THEN '<img src="/icons/users.svg" alt="2"/>'
+                    WHEN (t.places - t.reserves) = 1 THEN '<img src="/icons/user.svg" alt="1"/>'
+                    ELSE '<img src="/icons/car-off.svg" alt="Complet"/>'
+                END || ' <img src="/icons/hand-click.svg" alt="clic" /></span></div></a>'
             END,
             ''
         ) AS liste_trajets,
@@ -461,7 +459,7 @@ SELECT
     
 SELECT
     (SELECT journee FROM semainier WHERE position= strftime('%w',jour))||CHAR(10)||CHAR(10)||strftime('%d',jour)||' '||(SELECT mois FROM calendrier WHERE position= strftime('%m',jour))||CHAR(10)||CHAR(10)||strftime('%Hh%M',heure) as Date,
-        CASE WHEN (places-reserves)=3 
+        CASE WHEN (places-reserves)>2 
     THEN '![3 places](/icons/users-group.svg)'
     WHEN (places-reserves)=2 
     THEN '![2 places](/icons/users.svg)'
