@@ -143,6 +143,7 @@ SET unread_notifs = coalesce((
 --Onglets
 SET tab=coalesce($tab,'1');
 select 'tab' as component, TRUE as center;
+select  '' as title, 'leaf' as icon, 'index.sql?tab=7' as link, CASE WHEN $tab='7' THEN 'teal' ELSE 'secondary' END as color;
 select  'Mes trajets' as title, 'car' as icon, 'index.sql?tab=3' as link, CASE WHEN $tab='3' THEN 'teal' ELSE 'secondary' END as color where $group_id>0;
 select  'Calendrier' as title, 'calendar' as icon, 'index.sql?tab=2' as link, CASE WHEN $tab='2' THEN 'teal' ELSE 'secondary' END as color;
 select  'Carte'  as title, 'map-search' as icon, 'index.sql?tab=1' as link, CASE WHEN $tab='1' THEN 'teal' ELSE 'secondary' END as color;
@@ -158,9 +159,9 @@ select
         ELSE 'bell' 
     END as icon, 
     'index.sql?tab=6' as link, 
-    CASE WHEN $tab='6' THEN 'orange' ELSE 'secondary' END as color 
+    CASE WHEN $tab='6' THEN 'teal' ELSE 'secondary' END as color 
 where $group_id > 0;
-select  '' as title, 'leaf' as icon, 'index.sql?tab=7' as link, CASE WHEN $tab='7' THEN 'teal' ELSE 'secondary' END as color;
+
 --------------------------------
 --- Carte pour non-connectés ---
 --------------------------------
@@ -756,7 +757,7 @@ SELECT
     'Impact Environnemental' AS title,
     ROUND(SUM(co2_kg), 1) || ' kg' AS value,
     'de CO2 épargné' AS small_text,
-    'leaf-2' AS icon,
+    'leaf' AS icon,
     'teal' AS icon_color,
     'orange' AS value_color,
     'Basé sur les covoiturages réalisés' AS description,
