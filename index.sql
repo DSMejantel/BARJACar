@@ -748,16 +748,43 @@ WHERE distance_km IS NULL
 select 
     'columns' as component
     where $tab=7;
-select 
-    'Impact Environnemental'  as title,
-    ROUND(SUM(co2_kg), 1)||' kg'   as value,
-    'de CO2 épargné'                      as small_text,
-    'leaf-2'         as icon,
-    'teal' AS icon_color,
-     'orange' AS value_color,
-    'Basé sur les covoiturages réalisés' as description,
-    json_object('icon','map-route','color','teal','description',ROUND(SUM(distance_km), 1)||' km de trajets partagés') as item,
-    json_object('icon','users','color','teal','description','avec '||SUM(reserves)||' passagers') as item,
-    4 as size
-    FROM trajets WHERE co2_kg IS NOT NULL and $tab=7;
+SELECT 
+    'columns' AS component
+WHERE $tab = 7;
 
+SELECT 
+    'Impact Environnemental' AS title,
+    ROUND(SUM(co2_kg), 1) || ' kg' AS value,
+    'de CO2 épargné' AS small_text,
+    'leaf-2' AS icon,
+    'teal' AS icon_color,
+    'orange' AS value_color,
+    'Basé sur les covoiturages réalisés' AS description,
+    -- Total des kilomètres partagés (recalculé proprement via le CO2 stocké)
+    json_object(
+        'icon', 'map-route', 
+        'color', 'teal', 
+        'description', ROUND((
+            SELECT COALESCE(SUM(t.distance_km * r.places), 0)
+            FROM resa r
+            JOIN trajets t ON r.trajet_id = t.id
+            WHERE r.validation = 1 
+              AND t.co2_kg IS NOT NULL 
+              AND $tab = 7
+        ), 1) || ' km de trajets partagés'
+    ) AS item,
+    -- Total des passagers via une sous-requête isolée (zéro doublon)
+    json_object(
+        'icon', 'users', 
+        'color', 'teal', 
+        'description', 'avec ' || (
+            SELECT COALESCE(SUM(r.places), 0) 
+            FROM resa r
+            WHERE r.validation = 1 
+              AND r.trajet_id IN (SELECT id FROM trajets WHERE co2_kg IS NOT NULL AND $tab = 7)
+        ) || ' passagers'
+    ) AS item,
+    4 AS size
+FROM trajets
+WHERE co2_kg IS NOT NULL 
+  AND $tab = 7;
